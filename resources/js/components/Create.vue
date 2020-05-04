@@ -9,9 +9,8 @@
                 <form v-if="fields" @submit.prevent="createResource" autocomplete="off">
                     <!-- Validation Errors -->
                     <validation-errors :errors="validationErrors"/>
-
                     <!-- Fields -->
-                    <div v-for="field in fields">
+                    <div v-for="(field, index) in fields.fields" :key="index">
                         <component
                             :is="'form-' + field.component"
                             :errors="validationErrors"
@@ -147,15 +146,14 @@ export default {
          */
         createResourceFormData() {
             return _.tap(new FormData(), formData => {
-                _.each(this.fields, field => {
+                
+                _.each(this.fields.fields, field => {
                     field.fill(formData)
                 })
 
                 formData.append('viaResource', this.viaResource)
                 formData.append('viaResourceId', this.viaResourceId)
                 formData.append('viaRelationship', this.viaRelationship)
-
-
             })
         },
 
