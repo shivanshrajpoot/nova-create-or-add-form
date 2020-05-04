@@ -1,5 +1,5 @@
 <template>
-    <span>{{ field.value }}</span>
+    <index-belongs-to-field :resourceName="resourceName" :field="field" />
 </template>
 
 <script>
