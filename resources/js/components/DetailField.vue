@@ -1,5 +1,10 @@
 <template>
-    <panel-item :field="field" />
+    <detail-belongs-to-field
+        :resource="resource"
+        :resourceName="resourceName"
+        :resourceId="resourceId"
+        :field="field"
+    />
 </template>
 
 <script>

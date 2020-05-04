@@ -76,10 +76,9 @@
                 :field="field"
                 :parent="field"
                 :errors="errors"
-                :fields="fields"
+                :resource-name="belongsToResourceName"
                 v-on:hide-form="toggleForm"
-                v-on:select-created="selectCreatedResource"
-                @remove="remove" />
+                v-on:select-created="selectCreatedResource" />
         </template>
     </custom-default-field>
 </template>
@@ -108,6 +107,7 @@ export default {
 
     data: () => ({
         availableResources: [],
+        belongsToResourceName: '',
         initializingWithExistingResource: false,
         selectedResource: null,
         newResource: null,
@@ -128,6 +128,8 @@ export default {
 
     methods: {
         initializeComponent() {
+            this.belongsToResourceName = this.field.belongsToResourceName
+
             this.withTrashed = false
 
             // If a user is editing an existing resource with this relation
