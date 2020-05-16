@@ -100,6 +100,13 @@ class NovaCreateOrAdd extends BelongsTo {
 	public $singularLabel;
 
 	/**
+	 * Resource preview Link.
+	 *
+	 * @var string
+	 */
+	public $previewLink = false;
+
+	/**
 	 * Create a new field.
 	 *
 	 * @param  string  $name
@@ -257,6 +264,18 @@ class NovaCreateOrAdd extends BelongsTo {
 	}
 
 	/**
+	 * Show resource preview link.
+	 *
+	 * @param  bool  $value
+	 * @return $this
+	 */
+	public function previewLink($value = true) {
+		$this->previewLink = $value;
+
+		return $this;
+	}
+
+	/**
 	 * Specify if the relationship should be creatable.
 	 *
 	 * @param  bool  $value
@@ -335,6 +354,7 @@ class NovaCreateOrAdd extends BelongsTo {
                                 'belongsToResourceName' => $this->belongsToResourcePlural(),
 				'nullable'              => $this->nullable,
 				'searchable'            => $this->searchable,
+				'previewLink'            => $this->previewLink,
 				'creatable'             => $this->creatable,
 				'title'                 => $this->resourceClass::$title
 			], $this->meta);
