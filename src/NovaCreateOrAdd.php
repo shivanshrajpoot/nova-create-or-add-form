@@ -4,7 +4,7 @@ namespace Shivanshrajpoot\NovaCreateOrAdd;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Laravel\Nova\Fields\Field;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\FormatsRelatableDisplayValues;
 use Laravel\Nova\Fields\ResourceRelationshipGuesser;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -12,7 +12,7 @@ use Laravel\Nova\Rules\Relatable;
 use Laravel\Nova\TrashedStatus;
 use Shivanshrajpoot\NovaCreateOrAdd\Traits\HasChildren;
 
-class NovaCreateOrAdd extends Field {
+class NovaCreateOrAdd extends BelongsTo {
 	use FormatsRelatableDisplayValues, HasChildren;
 
 	/**
@@ -100,6 +100,13 @@ class NovaCreateOrAdd extends Field {
 	public $singularLabel;
 
 	/**
+	 * Resource preview Link.
+	 *
+	 * @var string
+	 */
+	public $previewLink = false;
+
+	/**
 	 * Create a new field.
 	 *
 	 * @param  string  $name
@@ -108,7 +115,7 @@ class NovaCreateOrAdd extends Field {
 	 * @return void
 	 */
 	public function __construct($name, $attribute = null, $resource = null) {
-		parent::__construct($name, $attribute);
+            parent::__construct($name, $attribute, $resource);
 		$resource = $resource??ResourceRelationshipGuesser::guessResource($name);
 
 		$this->resourceClass         = $resource;
@@ -175,21 +182,6 @@ class NovaCreateOrAdd extends Field {
 						new Relatable($request, $query)
 					]),
 			]);
-	}
-
-	/**
-	 * Hydrate the given attribute on the model based on the incoming request.
-	 *
-	 * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-	 * @param  object  $model
-	 * @return void
-	 */
-	public function fill(NovaRequest $request, $model) {
-		parent::fillInto($request, $model, $model->{ $this->attribute}()->getForeignKey());
-
-		if ($this->filledCallback) {
-			call_user_func($this->filledCallback, $request, $model);
-		}
 	}
 
 	/**
@@ -272,6 +264,18 @@ class NovaCreateOrAdd extends Field {
 	}
 
 	/**
+	 * Show resource preview link.
+	 *
+	 * @param  bool  $value
+	 * @return $this
+	 */
+	public function previewLink($value = true) {
+		$this->previewLink = $value;
+
+		return $this;
+	}
+
+	/**
 	 * Specify if the relationship should be creatable.
 	 *
 	 * @param  bool  $value
@@ -330,6 +334,11 @@ class NovaCreateOrAdd extends Field {
 		return $this;
 	}
 
+        public function belongsToResourcePlural()
+        {
+            return Str::plural(Str::lower($this->belongsToRelationship));
+        }
+
 	/**
 	 * Get additional meta information to merge with the field payload.
 	 *
@@ -338,12 +347,14 @@ class NovaCreateOrAdd extends Field {
 	public function meta() {
 		return array_merge([
 				'resourceName'          => $this->resourceName,
-				'label'                 => forward_static_call([$this->resourceClass, 'label']),
+                                'label'                 => forward_static_call([$this->resourceClass, 'label']),
 				'singularLabel'         => $this->singularLabel??$this->name??forward_static_call([$this->resourceClass, 'singularLabel']),
 				'belongsToRelationship' => $this->belongsToRelationship,
 				'belongsToId'           => $this->belongsToId,
+                                'belongsToResourceName' => $this->belongsToResourcePlural(),
 				'nullable'              => $this->nullable,
 				'searchable'            => $this->searchable,
+				'previewLink'            => $this->previewLink,
 				'creatable'             => $this->creatable,
 				'title'                 => $this->resourceClass::$title
 			], $this->meta);

@@ -9,9 +9,8 @@
                 <form v-if="fields" @submit.prevent="createResource" autocomplete="off">
                     <!-- Validation Errors -->
                     <validation-errors :errors="validationErrors"/>
-
                     <!-- Fields -->
-                    <div v-for="field in fields">
+                    <div v-for="(field, index) in fields.fields" :key="index">
                         <component
                             :is="'form-' + field.component"
                             :errors="validationErrors"
@@ -67,7 +66,6 @@ export default {
             type: Object,
             required: true
         },
-        fields: [],
     },
 
     data: () => ({
@@ -121,7 +119,7 @@ export default {
 
                 this.$emit('hide-form')
                 var value = response.data['id']
-                var display = response.data[this.field.title]
+                var display = response.data.resource[this.field.title]
                 this.$emit('select-created', {value:value, display:display})
 
 
@@ -147,15 +145,14 @@ export default {
          */
         createResourceFormData() {
             return _.tap(new FormData(), formData => {
-                _.each(this.fields, field => {
+                
+                _.each(this.fields.fields, field => {
                     field.fill(formData)
                 })
 
                 formData.append('viaResource', this.viaResource)
                 formData.append('viaResourceId', this.viaResourceId)
                 formData.append('viaRelationship', this.viaRelationship)
-
-
             })
         },
 

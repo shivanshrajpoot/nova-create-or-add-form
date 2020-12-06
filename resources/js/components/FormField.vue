@@ -32,7 +32,7 @@
                     {{ option.display }}
                 </div>
             </custom-search-input>
-
+            
             <select
                 v-if="!isSearchable || isLocked"
                 class="form-control form-select mb-3 w-full"
@@ -62,13 +62,21 @@
 
             <!-- Trashed State -->
             <div v-if="softDeletes && !isLocked">
-                <label class="flex items-center" @input="toggleWithTrashed" @keydown.prevent.space.enter="toggleWithTrashed">
+                <label class="flex items-center mb-3" @input="toggleWithTrashed" @keydown.prevent.space.enter="toggleWithTrashed">
                     <checkbox :dusk="field.resourceName + '-with-trashed-checkbox'" :checked="withTrashed" />
 
                     <span class="ml-2">
                         {{__('With Trashed')}}
                     </span>
-                </label>
+                </label>    
+            </div>
+
+             <!-- Trashed State -->
+
+            <div v-if="isPreviewLink">
+                <span class="ml-2">
+                    <a :href="previewLink.link" target = "_blank" class="no-underline dim text-primary font-bold"> {{ previewLink.display }} </a>
+                </span>
             </div>
 
             <Create 
@@ -76,10 +84,9 @@
                 :field="field"
                 :parent="field"
                 :errors="errors"
-                :fields="fields"
+                :resource-name="belongsToResourceName"
                 v-on:hide-form="toggleForm"
-                v-on:select-created="selectCreatedResource"
-                @remove="remove" />
+                v-on:select-created="selectCreatedResource" />
         </template>
     </custom-default-field>
 </template>
@@ -108,6 +115,7 @@ export default {
 
     data: () => ({
         availableResources: [],
+        belongsToResourceName: '',
         initializingWithExistingResource: false,
         selectedResource: null,
         newResource: null,
@@ -128,6 +136,8 @@ export default {
 
     methods: {
         initializeComponent() {
+            this.belongsToResourceName = this.field.belongsToResourceName
+
             this.withTrashed = false
 
             // If a user is editing an existing resource with this relation
@@ -255,7 +265,7 @@ export default {
         selectCreatedResource(resource){
             this.availableResources = [resource]
             this.selectedResource = resource
-        }
+        },
     },
 
     computed: {
@@ -292,6 +302,14 @@ export default {
          */
         isCreatable() {
             return this.field.creatable
+        },
+
+        isPreviewLink() {
+            return this.selectedResource && this.field.previewLink ? true : false
+        },
+
+        previewLink() {
+            return { display: this.selectedResource.display, link : '/admin/resources/' + this.field.resourceName + '/' + this.selectedResource.value };
         },
 
         /**
